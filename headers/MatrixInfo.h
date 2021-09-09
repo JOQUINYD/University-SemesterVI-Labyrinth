@@ -11,7 +11,7 @@ struct MatrixInfo {
     Box** matrix;
     char* path;
     void (*getMatrixSize)(MatrixInfo* self);
-    void (*generateMatrix)(MatrixInfo* self);
+    char** (*generateMatrixChars)(MatrixInfo* self);
 };
 
 MatrixInfo* newMatrixInfo(char* path);

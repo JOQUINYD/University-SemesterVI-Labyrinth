@@ -50,26 +50,48 @@ void getMatrixSize(MatrixInfo* self){
    
 }
 
-MatrixInfo* newMatrixInfo(char* path){
-    //new
-    MatrixInfo* self = (MatrixInfo*)malloc(sizeof(MatrixInfo));
+char** generateMatrixChars(MatrixInfo* self){
+    FILE *file;
+   
+    /* Open a file for reading */
+    file = fopen(self->path,"r");
+
+    /* If it didn't open */
+    if(file == NULL){
+        perror("Error: Unable to open a file");
+    } 
     
-    //atributes
+    else {
+        char line[512];
+        fgets(line, 512, file);
+        
 
-    self->path = path; //Se deberia pedir por teclado
+        char** matrix = malloc(self->rows * sizeof *matrix);
+        for (int i=0; i<self->rows; i++)
+        {
+            matrix[i] = malloc(self->columns * sizeof *matrix[i]);
+        }
 
-    self->getMatrixSize=getMatrixSize;
-
-    self->getMatrixSize(self);
-    
-    return self;
+        for (int i = 0; i < self->rows; i++)
+        {
+            char lineTmp[512];
+            fgets(lineTmp, self->columns+1, file);
+            printf("%s",lineTmp);
+            printf("%d", self->rows);
+            
+            for (int j = 0; j < self->columns; j++)
+            {
+                //printf("%c\n", lineTmp[j]);
+                matrix[i][j] = lineTmp[j];
+                //printf("%c",matrix[i][j]);
+            }
+        }
+        
+        return matrix;
+    }
 }
 
-Box** generateMatrix(MatrixInfo* self){
-    
-}
-
-Box** crateMatrix(int rows, int cols){
+/* Box** crateMatrix(int rows, int cols){
     Box** matrix = malloc(rows * sizeof *matrix);
     for (int i=0; i<rows; i++)
     {
@@ -86,4 +108,24 @@ Box** crateMatrix(int rows, int cols){
     }
     
     return matrix;
+} */
+
+MatrixInfo* newMatrixInfo(char* path){
+    //new
+    MatrixInfo* self = (MatrixInfo*)malloc(sizeof(MatrixInfo));
+    
+    //atributes
+
+    self->path = path; //Se deberia pedir por teclado
+
+    self->getMatrixSize=getMatrixSize;
+
+    self->getMatrixSize(self);
+
+    self->generateMatrixChars=generateMatrixChars;
+
+    self->generateMatrixChars(self);
+    
+    return self;
 }
+
