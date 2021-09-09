@@ -1,7 +1,6 @@
 #include "../headers/Path.h"
 #include <pthread.h>
 
-
 Box** matrix;
 int rows;
 int cols;
@@ -116,36 +115,11 @@ void move(Path* path, char direction){
 
 }
 
-void *printMatrix(){
 
-    for (int i = 0; i < rows; i++)
-    {
-        for (int j = 0; j < cols; j++)
-        {
-            if (matrix[i][j].marked)
-            {
-                printf("x");
-            }
-            else{
-                printf("o");
-            }
-            
-        }
-            printf("\n");
+void *executeThread(void* path_i){
 
-    }
-    printf("------------------------------------\n");
-
-}
-
-void printM(){
-    pthread_t t1;
-    pthread_create(&t1, NULL, &printMatrix, NULL);
-    pthread_join(t1, NULL);
-}
-
-void *executeThread(Path* path){
-
+    Path* path = (Path*)path_i;
+    usleep(500000);
 
     if (path->direction!='u' && canMoveTo(path,'u'))
     {
@@ -153,35 +127,27 @@ void *executeThread(Path* path){
         Path* newPath = clonePath(path);
         move(newPath,'u');
         pthread_create(&t1, NULL, &executeThread, newPath);
-        pthread_join(t1, NULL);
-
     }
     if (path->direction!='d' && canMoveTo(path,'d'))
     {
-        pthread_t t1;
+        pthread_t t2;
         Path* newPath = clonePath(path);
         move(newPath,'d');
-        pthread_create(&t1, NULL, &executeThread, newPath);
-        pthread_join(t1, NULL);
-
+        pthread_create(&t2, NULL, &executeThread, newPath);
     }
     if (path->direction!='r' && canMoveTo(path,'r'))
     {
-        pthread_t t1;
+        pthread_t t3;
         Path* newPath = clonePath(path);
         move(newPath,'r');
-        pthread_create(&t1, NULL, &executeThread, newPath);
-        pthread_join(t1, NULL);
-
+        pthread_create(&t3, NULL, &executeThread, newPath);
     }
     if (path->direction!='l' && canMoveTo(path,'l'))
     {
-        pthread_t t1;
+        pthread_t t4;    
         Path* newPath = clonePath(path);
         move(newPath,'l');
-        pthread_create(&t1, NULL, &executeThread, newPath);
-        pthread_join(t1, NULL);
-
+        pthread_create(&t4, NULL, &executeThread, newPath);
     }
 
     
@@ -189,6 +155,10 @@ void *executeThread(Path* path){
         move(path,path->direction);
         executeThread(path);
     }
+
+
+
+
 
 }
 
