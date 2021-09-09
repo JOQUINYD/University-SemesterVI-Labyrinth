@@ -60,12 +60,11 @@ void getMatrixSize(FILE *file){
 
    //printf("\n%s", colsTemp);
 
-   char strs[2][11];
-   strcpy(strs[0], rowsTemp);
-   strcpy(strs[1], colsTemp);
-   
-   printf("\n%s", strs[0]);
-   printf("\n%s", strs[1]);
+   int rows = atoi(rowsTemp);
+   int cols = atoi(colsTemp);
+
+   printf("\n%d", rows);
+   printf("\n%d", cols);
 
    //return strs;
 }
