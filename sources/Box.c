@@ -1,7 +1,7 @@
 #include "../headers/Box.h"
 
 
-Box* newTest(char type){
+Box* newBox(char type){
     //new
     Box* self = (Box*)malloc(sizeof(Box));
     
