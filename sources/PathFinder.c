@@ -121,42 +121,62 @@ void *executeThread(void* path_i){
     Path* path = (Path*)path_i;
     usleep(500000);
 
-    if (path->direction!='u' && canMoveTo(path,'u'))
+    pthread_t threads[4] = {0,0,0,0};
+
+
+
+    if (path->direction!='u' && path->direction!='d'&& canMoveTo(path,'u'))
     {
         pthread_t t1;
         Path* newPath = clonePath(path);
         move(newPath,'u');
         pthread_create(&t1, NULL, &executeThread, newPath);
+        threads[0]=t1;
     }
-    if (path->direction!='d' && canMoveTo(path,'d'))
+    if (path->direction!='d' && path->direction!='u'&& canMoveTo(path,'d'))
     {
         pthread_t t2;
         Path* newPath = clonePath(path);
         move(newPath,'d');
-        pthread_create(&t2, NULL, &executeThread, newPath);
+        pthread_create(&t2, NULL, &executeThread, newPath);           
+        threads[1]=t2;
     }
-    if (path->direction!='r' && canMoveTo(path,'r'))
+    if (path->direction!='r' && path->direction!='l' && canMoveTo(path,'r'))
     {
         pthread_t t3;
+        
         Path* newPath = clonePath(path);
         move(newPath,'r');
         pthread_create(&t3, NULL, &executeThread, newPath);
+        threads[2]=t3;
     }
-    if (path->direction!='l' && canMoveTo(path,'l'))
+    if (path->direction!='l' && path->direction!='r' && canMoveTo(path,'l'))
     {
-        pthread_t t4;    
+        pthread_t t4;   
+
         Path* newPath = clonePath(path);
         move(newPath,'l');
         pthread_create(&t4, NULL, &executeThread, newPath);
+        threads[3]=t4; 
     }
 
-    
+
+
     if(canMoveTo(path,path->direction)){
         move(path,path->direction);
         executeThread(path);
     }
 
 
+    for (int i = 0; i <4; i++)
+    {
+        if (threads[i] != 0)
+        {
+            pthread_join(threads[i],NULL);
+        }
+        
+    }
+    
 
 
 
