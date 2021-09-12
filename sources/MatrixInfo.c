@@ -51,19 +51,60 @@ void getMatrixSize(MatrixInfo* self){
 }
 
 char** generateMatrixChars(MatrixInfo* self){
-    FILE *file;
+    FILE *fp = fopen(self->path, "r");
+    if(fp == NULL) {
+         perror("Unable to open file!");
+        exit(1);
+    }
+ 
+    char chunk[128];
+
+    fgets(chunk, sizeof(chunk), fp); //ignoramos la primera
+    
+    char** matrix = malloc(self->rows * sizeof *matrix);
+    for (int i=0; i<self->rows; i++)
+    {
+        matrix[i] = malloc(self->columns * sizeof *matrix[i]);
+    }
+
+    int i = 0;
+    while(fgets(chunk, sizeof(chunk), fp) != NULL) {
+        for (int j = 0; j < self->columns; j++)
+        {
+            matrix[i][j] = chunk[j];
+        } 
+        i++;
+    }
+
+    for (int i = 0; i < self->rows; i++)
+        {
+            
+            for (int j = 0; j < self->columns; j++)
+            {
+                //printf("%c\n", lineTmp[j]);
+                printf("%c", matrix[i][j]);
+                
+                //printf("%c",matrix[i][j]);
+            }
+            printf("\n");
+        }
+
+    fclose(fp);
+
+  /*  FILE *file;
    
-    /* Open a file for reading */
+    /* Open a file for reading 
     file = fopen(self->path,"r");
 
-    /* If it didn't open */
+    /* If it didn't open 
     if(file == NULL){
         perror("Error: Unable to open a file");
     } 
     
     else {
-        char line[512];
-        fgets(line, 512, file);
+        
+         char line[128];
+        fgets(line, 128, file);
         
 
         char** matrix = malloc(self->rows * sizeof *matrix);
@@ -74,7 +115,7 @@ char** generateMatrixChars(MatrixInfo* self){
 
         for (int i = 0; i < self->rows; i++)
         {
-            char lineTmp[512];
+            char lineTmp[128];
             fgets(lineTmp, self->columns+1, file);
             printf("%s",lineTmp);
             printf("%d", self->rows);
@@ -84,11 +125,11 @@ char** generateMatrixChars(MatrixInfo* self){
                 //printf("%c\n", lineTmp[j]);
                 matrix[i][j] = lineTmp[j];
                 //printf("%c",matrix[i][j]);
-            }
-        }
+            } */
+        //}
         
-        return matrix;
-    }
+        //return matrix;
+    //}
 }
 
 /* Box** crateMatrix(int rows, int cols){
