@@ -117,6 +117,7 @@ void move(Path* path, char direction){
 
 
 void *executeThread(void* path_i){
+    //lo llamo con path* en lugar de coid* en los subthreads
 
     Path* path = (Path*)path_i;
     usleep(500000);
@@ -176,50 +177,78 @@ void *executeThread(void* path_i){
         }
         
     }
-    
-
-
 
 }
 
-void executeFork(Path* path){
+void executeFork(void* path_i){
 
+    Path* path = (Path*)path_i;
+    usleep(500000);
 
-    if (path->direction!='u' && canMoveTo(path,'u'))
+    int father = 1;
+    int childIds[4] = {0,0,0,0};
+
+    if (father!=0 && path->direction!='u' && path->direction!='d'&& canMoveTo(path,'u'))
     {
-        if(fork()==0){
+        father = fork();
+        if (father==0)
+        {
             path->direction = 'u';
         }
+        else{
+            childIds[0] = father;
+        }
+        
     }
-    if (path->direction!='d' && canMoveTo(path,'d'))
+    if (father!=0 && path->direction!='d' && path->direction!='u'&& canMoveTo(path,'d'))
     {
-        if(fork()==0){
+        father = fork();
+        if (father==0)
+        {
             path->direction = 'd';
         }
+        else{
+            childIds[1] = father;
+        }
     }
-    if (path->direction!='r' && canMoveTo(path,'r'))
+    if (father!=0 && path->direction!='r' && path->direction!='l' && canMoveTo(path,'r'))
     {
-        if(fork()==0){
+        father = fork();
+        if (father==0)
+        {
             path->direction = 'r';
         }
+        else{
+            childIds[2] = father;
+        }
+       
     }
-    if (path->direction!='l' && canMoveTo(path,'l'))
+    if (father!=0 && path->direction!='l' && path->direction!='r' && canMoveTo(path,'l'))
     {
-        if(fork()==0){
+        father = fork();
+        if (father==0)
+        {
             path->direction = 'l';
+        }   
+        else{
+            childIds[3] = father;
         }
     }
 
-    printf("La direccion actual es %c\n",path->direction);
+    if(canMoveTo(path,path->direction)){
+        move(path,path->direction);
+        executeFork(path);
+    }
 
-    // puedo ir hacia las otras direcciones?
-        //  hacer un fork por cada direccion y poner la nueva direccion 
+    for (int i = 0; i < 4; i++)
+    {
+        if (childIds[i]!=0)
+        {
+            waitpid(childIds[i]);
+        }
+        
+    }
     
-    //puedo moverme ahcia mi direccion?
-        //me muevo y llamo execute Fork
-    //else
-        //termino 
-
 }
 
 
