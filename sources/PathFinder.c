@@ -1,7 +1,6 @@
 #include "../headers/Path.h"
 #include <pthread.h>
 
-
 Box** matrix;
 int rows;
 int cols;
@@ -116,120 +115,140 @@ void move(Path* path, char direction){
 
 }
 
-void *printMatrix(){
 
-    for (int i = 0; i < rows; i++)
-    {
-        for (int j = 0; j < cols; j++)
-        {
-            if (matrix[i][j].marked)
-            {
-                printf("x");
-            }
-            else{
-                printf("o");
-            }
-            
-        }
-            printf("\n");
+void *executeThread(void* path_i){
+    //lo llamo con path* en lugar de coid* en los subthreads
 
-    }
-    printf("------------------------------------\n");
+    Path* path = (Path*)path_i;
+    usleep(500000);
 
-}
-
-void printM(){
-    pthread_t t1;
-    pthread_create(&t1, NULL, &printMatrix, NULL);
-    pthread_join(t1, NULL);
-}
-
-void *executeThread(Path* path){
+    pthread_t threads[4] = {0,0,0,0};
 
 
-    if (path->direction!='u' && canMoveTo(path,'u'))
+
+    if (path->direction!='u' && path->direction!='d'&& canMoveTo(path,'u'))
     {
         pthread_t t1;
         Path* newPath = clonePath(path);
         move(newPath,'u');
         pthread_create(&t1, NULL, &executeThread, newPath);
-        pthread_join(t1, NULL);
-
+        threads[0]=t1;
     }
-    if (path->direction!='d' && canMoveTo(path,'d'))
+    if (path->direction!='d' && path->direction!='u'&& canMoveTo(path,'d'))
     {
-        pthread_t t1;
+        pthread_t t2;
         Path* newPath = clonePath(path);
         move(newPath,'d');
-        pthread_create(&t1, NULL, &executeThread, newPath);
-        pthread_join(t1, NULL);
-
+        pthread_create(&t2, NULL, &executeThread, newPath);           
+        threads[1]=t2;
     }
-    if (path->direction!='r' && canMoveTo(path,'r'))
+    if (path->direction!='r' && path->direction!='l' && canMoveTo(path,'r'))
     {
-        pthread_t t1;
+        pthread_t t3;
+        
         Path* newPath = clonePath(path);
         move(newPath,'r');
-        pthread_create(&t1, NULL, &executeThread, newPath);
-        pthread_join(t1, NULL);
-
+        pthread_create(&t3, NULL, &executeThread, newPath);
+        threads[2]=t3;
     }
-    if (path->direction!='l' && canMoveTo(path,'l'))
+    if (path->direction!='l' && path->direction!='r' && canMoveTo(path,'l'))
     {
-        pthread_t t1;
+        pthread_t t4;   
+
         Path* newPath = clonePath(path);
         move(newPath,'l');
-        pthread_create(&t1, NULL, &executeThread, newPath);
-        pthread_join(t1, NULL);
-
+        pthread_create(&t4, NULL, &executeThread, newPath);
+        threads[3]=t4; 
     }
 
-    
+
+
     if(canMoveTo(path,path->direction)){
         move(path,path->direction);
         executeThread(path);
     }
 
+
+    for (int i = 0; i <4; i++)
+    {
+        if (threads[i] != 0)
+        {
+            pthread_join(threads[i],NULL);
+        }
+        
+    }
+
 }
 
-void executeFork(Path* path){
+void executeFork(void* path_i){
 
+    Path* path = (Path*)path_i;
+    usleep(500000);
 
-    if (path->direction!='u' && canMoveTo(path,'u'))
+    int father = 1;
+    int childIds[4] = {0,0,0,0};
+
+    if (father!=0 && path->direction!='u' && path->direction!='d'&& canMoveTo(path,'u'))
     {
-        if(fork()==0){
+        father = fork();
+        if (father==0)
+        {
             path->direction = 'u';
         }
+        else{
+            childIds[0] = father;
+        }
+        
     }
-    if (path->direction!='d' && canMoveTo(path,'d'))
+    if (father!=0 && path->direction!='d' && path->direction!='u'&& canMoveTo(path,'d'))
     {
-        if(fork()==0){
+        father = fork();
+        if (father==0)
+        {
             path->direction = 'd';
         }
+        else{
+            childIds[1] = father;
+        }
     }
-    if (path->direction!='r' && canMoveTo(path,'r'))
+    if (father!=0 && path->direction!='r' && path->direction!='l' && canMoveTo(path,'r'))
     {
-        if(fork()==0){
+        father = fork();
+        if (father==0)
+        {
             path->direction = 'r';
         }
+        else{
+            childIds[2] = father;
+        }
+       
     }
-    if (path->direction!='l' && canMoveTo(path,'l'))
+    if (father!=0 && path->direction!='l' && path->direction!='r' && canMoveTo(path,'l'))
     {
-        if(fork()==0){
+        father = fork();
+        if (father==0)
+        {
             path->direction = 'l';
+        }   
+        else{
+            childIds[3] = father;
         }
     }
 
-    printf("La direccion actual es %c\n",path->direction);
+    if(canMoveTo(path,path->direction)){
+        move(path,path->direction);
+        executeFork(path);
+    }
 
-    // puedo ir hacia las otras direcciones?
-        //  hacer un fork por cada direccion y poner la nueva direccion 
+    for (int i = 0; i < 4; i++)
+    {
+        if (childIds[i]!=0)
+        {
+            waitpid(childIds[i]);
+        }
+        
+    }
     
-    //puedo moverme ahcia mi direccion?
-        //me muevo y llamo execute Fork
-    //else
-        //termino 
-
 }
 
 
