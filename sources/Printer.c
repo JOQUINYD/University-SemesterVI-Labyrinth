@@ -1,4 +1,5 @@
 #include "../headers/Box.h"
+#include "../headers/PrinterInfo.h"
 
 void fontBlack(){
     printf("\033[0;30m");
@@ -24,8 +25,16 @@ void fontReset(){
     printf("\033[0m");
 }
 
-void* printMatrix(Box** matrix, int numOfRows, int numOfCols, bool* done){
-    while (!done)
+void* printMatrix(void* printInfo_i){
+
+    PrinterInfo *printerInfo = (PrinterInfo*)(printInfo_i);
+
+    Box** matrix = printerInfo->matrix;
+    int numOfRows = printerInfo->numOfRows;
+    int numOfCols = printerInfo->numOfCols;
+    bool* done = printerInfo->done;
+
+    while (!(*done))
     {
         for (int row = 0; row < numOfRows; row++)
         {
