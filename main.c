@@ -69,7 +69,6 @@ Box** crateSharedMatrix(int rows, int cols){
 }
 
 int main(int argc, char *argv[]){
-
   
     int cols = 5;
     int rows = 5;
@@ -80,6 +79,10 @@ int main(int argc, char *argv[]){
     printf("///////////////////////////////////////////////////////////////////////////\n");
     printf("Inicia Ejecucion Threads\n");
     sleep(1);
+
+    // MUTEX
+    pthread_mutex_t *mutexThread = malloc(sizeof mutexThread);
+    pthread_mutex_init(mutexThread, NULL);
 
     //Get the Matrix
     Box** matrixThreads = crateMatrix(rows,cols); 
@@ -94,7 +97,7 @@ int main(int argc, char *argv[]){
     pthread_create(&printerThreads, NULL, &printMatrix, printerInfoThreads);
     
     //SetVariables
-    setVariables(matrixThreads,rows,cols); 
+    setVariables(matrixThreads,rows,cols, mutexThread); 
     
     //Create first Path
     Path* startPathThread = newPath(0,0,'d',0);
@@ -121,6 +124,10 @@ int main(int argc, char *argv[]){
     printf("Inicia Ejecucion Forks\n");
     sleep(1);
 
+    // MUTEX
+    pthread_mutex_t *mutexFork = mmap(NULL, sizeof mutexFork, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0); 
+    pthread_mutex_init(mutexFork, NULL);
+
     //Get the Matrix
     Box** matrixForks = crateSharedMatrix(rows,cols); 
     
@@ -132,7 +139,7 @@ int main(int argc, char *argv[]){
 
    
     //SetVariables
-    setVariables(matrixForks,rows,cols); 
+    setVariables(matrixForks,rows,cols, mutexFork); 
     
     //Create first Path
     Path* startPathFork = newPath(0,0,'d',0);

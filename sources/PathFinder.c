@@ -4,12 +4,13 @@
 Box** matrix;
 int rows;
 int cols;
+pthread_mutex_t *mutex; 
 
-
-void setVariables(Box** matrix_i, int rows_i, int cols_i){
+void setVariables(Box** matrix_i, int rows_i, int cols_i, pthread_mutex_t *_mutex){
     matrix = matrix_i;
     rows = rows_i;
     cols = cols_i;
+    mutex = _mutex;
 }
 
 
