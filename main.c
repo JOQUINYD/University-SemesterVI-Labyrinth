@@ -73,7 +73,8 @@ int main(int argc, char *argv[]){
     int cols = 5;
     int rows = 5;
 
-     ///////////////////////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////
 
     //Thread execution
     printf("///////////////////////////////////////////////////////////////////////////\n");
@@ -81,8 +82,8 @@ int main(int argc, char *argv[]){
     sleep(1);
 
     // MUTEX
-    pthread_mutex_t *mutexThread = malloc(sizeof mutexThread);
-    pthread_mutex_init(mutexThread, NULL);
+    pthread_mutex_t mutexThread;
+    pthread_mutex_init(&mutexThread, NULL);
 
     //Get the Matrix
     Box** matrixThreads = crateMatrix(rows,cols); 
@@ -97,7 +98,7 @@ int main(int argc, char *argv[]){
     pthread_create(&printerThreads, NULL, &printMatrix, printerInfoThreads);
     
     //SetVariables
-    setVariables(matrixThreads,rows,cols, mutexThread); 
+    setVariables(matrixThreads,rows,cols, &mutexThread); 
     
     //Create first Path
     Path* startPathThread = newPath(0,0,'d',0);
@@ -115,8 +116,10 @@ int main(int argc, char *argv[]){
     //Join Printer Thread
     pthread_join(printerThreads, NULL);
     
+    printf("TERMINA THREAD\n");
 
-    
+    pthread_mutex_destroy(&mutexThread);    
+
     ///////////////////////////////////////////////////////////////////////////
 
     //Fork Execution 
@@ -155,6 +158,7 @@ int main(int argc, char *argv[]){
     else{
         printMatrix(printerInfoForks);
     }
+
 
     return 0;
 }
