@@ -127,49 +127,89 @@ void *executeThread(void* path_i){
 
 
 
-    if (path->direction!='u' && path->direction!='d'&& canMoveTo(path,'u'))
+    if (path->direction!='u' && path->direction!='d')
     {
-        pthread_t t1;
-        Path* newPath = clonePath(path);
-        move(newPath,'u');
-        pthread_create(&t1, NULL, &executeThread, newPath);
-        threads[0]=t1;
-    }
-    if (path->direction!='d' && path->direction!='u'&& canMoveTo(path,'d'))
-    {
-        pthread_t t2;
-        Path* newPath = clonePath(path);
-        move(newPath,'d');
-        pthread_create(&t2, NULL, &executeThread, newPath);           
-        threads[1]=t2;
-    }
-    if (path->direction!='r' && path->direction!='l' && canMoveTo(path,'r'))
-    {
-        pthread_t t3;
+        pthread_mutex_lock(mutex);
+        if (canMoveTo(path,'u'))
+        {
+            pthread_t t1;
+            Path* newPath = clonePath(path);
+            move(newPath,'u');
+            pthread_mutex_unlock(mutex);
+            pthread_create(&t1, NULL, &executeThread, newPath);
+            threads[0]=t1;
+        }
+        else
+        {
+            pthread_mutex_unlock(mutex);
+        }
         
-        Path* newPath = clonePath(path);
-        move(newPath,'r');
-        pthread_create(&t3, NULL, &executeThread, newPath);
-        threads[2]=t3;
     }
-    if (path->direction!='l' && path->direction!='r' && canMoveTo(path,'l'))
+    if (path->direction!='d' && path->direction!='u')
     {
-        pthread_t t4;   
-
-        Path* newPath = clonePath(path);
-        move(newPath,'l');
-        pthread_create(&t4, NULL, &executeThread, newPath);
-        threads[3]=t4; 
+        pthread_mutex_lock(mutex);
+        if (canMoveTo(path,'d'))
+        {
+            pthread_t t2;
+            Path* newPath = clonePath(path);
+            move(newPath,'d');
+            pthread_mutex_unlock(mutex);
+            pthread_create(&t2, NULL, &executeThread, newPath);           
+            threads[1]=t2;
+        }
+        else
+        {
+            pthread_mutex_unlock(mutex);
+        }
+        
+    }
+    if (path->direction!='r' && path->direction!='l')
+    {
+        pthread_mutex_lock(mutex);
+        if (canMoveTo(path,'r'))
+        {
+            pthread_t t3;
+            Path* newPath = clonePath(path);
+            move(newPath,'r');
+            pthread_mutex_unlock(mutex);
+            pthread_create(&t3, NULL, &executeThread, newPath);
+            threads[2]=t3;
+        }
+        else
+        {
+            pthread_mutex_unlock(mutex);
+        }
+    }
+    if (path->direction!='l' && path->direction!='r')
+    {
+        pthread_mutex_lock(mutex);
+        if (canMoveTo(path,'l'))
+        {
+            pthread_t t4;   
+            Path* newPath = clonePath(path);
+            move(newPath,'l');
+            pthread_mutex_unlock(mutex);
+            pthread_create(&t4, NULL, &executeThread, newPath);
+            threads[3]=t4; 
+        }
+        else
+        {
+            pthread_mutex_unlock(mutex);
+        }
     }
 
 
-
+    pthread_mutex_lock(mutex);
     if(canMoveTo(path,path->direction)){
         move(path,path->direction);
+        pthread_mutex_unlock(mutex);
         executeThread(path);
     }
-
-
+    else
+    {
+        pthread_mutex_unlock(mutex);
+    }
+    
     for (int i = 0; i <4; i++)
     {
         if (threads[i] != 0)
