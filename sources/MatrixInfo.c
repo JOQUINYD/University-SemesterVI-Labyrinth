@@ -50,7 +50,7 @@ void getMatrixSize(MatrixInfo* self){
    
 }
 
-char** generateMatrixChars(MatrixInfo* self){
+void generateMatrixChars(MatrixInfo* self){
     FILE *fp = fopen(self->path, "r");
     if(fp == NULL) {
          perror("Unable to open file!");
@@ -76,60 +76,22 @@ char** generateMatrixChars(MatrixInfo* self){
         i++;
     }
 
-    for (int i = 0; i < self->rows; i++)
+    /* for (int i = 0; i < self->rows; i++)
+    {
+        
+        for (int j = 0; j < self->columns; j++)
         {
+            //printf("%c\n", lineTmp[j]);
+            printf("%c", matrix[i][j]);
             
-            for (int j = 0; j < self->columns; j++)
-            {
-                //printf("%c\n", lineTmp[j]);
-                printf("%c", matrix[i][j]);
-                
-                //printf("%c",matrix[i][j]);
-            }
-            printf("\n");
+            //printf("%c",matrix[i][j]);
         }
+        printf("\n");
+    } */
 
     fclose(fp);
 
-  /*  FILE *file;
-   
-    /* Open a file for reading 
-    file = fopen(self->path,"r");
-
-    /* If it didn't open 
-    if(file == NULL){
-        perror("Error: Unable to open a file");
-    } 
-    
-    else {
-        
-         char line[128];
-        fgets(line, 128, file);
-        
-
-        char** matrix = malloc(self->rows * sizeof *matrix);
-        for (int i=0; i<self->rows; i++)
-        {
-            matrix[i] = malloc(self->columns * sizeof *matrix[i]);
-        }
-
-        for (int i = 0; i < self->rows; i++)
-        {
-            char lineTmp[128];
-            fgets(lineTmp, self->columns+1, file);
-            printf("%s",lineTmp);
-            printf("%d", self->rows);
-            
-            for (int j = 0; j < self->columns; j++)
-            {
-                //printf("%c\n", lineTmp[j]);
-                matrix[i][j] = lineTmp[j];
-                //printf("%c",matrix[i][j]);
-            } */
-        //}
-        
-        //return matrix;
-    //}
+    self->matrix=matrix;
 }
 
 /* Box** crateMatrix(int rows, int cols){

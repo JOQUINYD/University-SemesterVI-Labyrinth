@@ -8,10 +8,10 @@ typedef struct MatrixInfo MatrixInfo;
 struct MatrixInfo {
     int rows;
     int columns;
-    Box** matrix;
+    char** matrix;
     char* path;
     void (*getMatrixSize)(MatrixInfo* self);
-    char** (*generateMatrixChars)(MatrixInfo* self);
+    void (*generateMatrixChars)(MatrixInfo* self);
 };
 
 MatrixInfo* newMatrixInfo(char* path);
