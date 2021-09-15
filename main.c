@@ -6,7 +6,11 @@
 #include "sources/Printer.c"
 #include "sources/PrinterInfo.c"
 #include <sys/mman.h>
+#include <sys/wait.h>
 
+
+int cols = 5;
+int rows = 5;
 
 Box** crateMatrix(int rows, int cols){
     Box** matrix = malloc(rows * sizeof *matrix);
@@ -31,9 +35,13 @@ Box** crateMatrix(int rows, int cols){
     matrix[1][0].type = ' ';
     matrix[1][1].type = ' ';
     matrix[2][1].type = ' ';
+    matrix[1][2].type = ' ';
+    matrix[2][3].type = ' ';
+    matrix[1][3].type = ' ';
     matrix[3][1].type = ' ';
-    matrix[3][2].type = ' ';
+    matrix[3][2].type = '/';
     matrix[4][2].type = ' ';   
+    matrix[3][3].type = ' '; 
     return matrix;
 }
 
@@ -62,21 +70,19 @@ Box** crateSharedMatrix(int rows, int cols){
     matrix[1][0].type = ' ';
     matrix[1][1].type = ' ';
     matrix[2][1].type = ' ';
+    matrix[1][2].type = ' ';
+    matrix[2][3].type = ' ';
+    matrix[1][3].type = ' ';
     matrix[3][1].type = ' ';
-    matrix[3][2].type = ' ';
+    matrix[3][2].type = '/';
     matrix[4][2].type = ' ';   
+    matrix[3][3].type = ' ';
     return matrix;
 }
 
-int main(int argc, char *argv[]){
-  
-    int cols = 5;
-    int rows = 5;
 
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    //Thread execution
+void threadExecution(){
+   //Thread execution
     printf("///////////////////////////////////////////////////////////////////////////\n");
     printf("Inicia Ejecucion Threads\n");
     sleep(1);
@@ -119,9 +125,9 @@ int main(int argc, char *argv[]){
     printf("TERMINA THREAD\n");
 
     pthread_mutex_destroy(&mutexThread);    
+}
 
-    ///////////////////////////////////////////////////////////////////////////
-
+void forkExecution(){
     //Fork Execution 
     printf("///////////////////////////////////////////////////////////////////////////\n");
     printf("Inicia Ejecucion Forks\n");
@@ -146,19 +152,39 @@ int main(int argc, char *argv[]){
     
     //Create first Path
     Path* startPathFork = newPath(0,0,'d',0);
+ 
 
-    //Fork the execution and Printer
-    if (fork()==0)
+
+    //Create PrinterThread
+    pthread_t printerForks;
+    pthread_create(&printerForks, NULL, &printMatrix, printerInfoForks);
+
+    pid_t pid = fork();
+    
+    int status;
+    if (pid==0)  
     {
         executeFork(startPathFork);
-        wait();
-        *finishedForks = true;
-
+        
     }
     else{
-        printMatrix(printerInfoForks);
+        waitpid(pid,&status,0);
+        *finishedForks = true;
     }
 
+    //Join Printer Thread
+    pthread_join(printerForks,NULL);
+
+
+
+}
+
+
+
+int main(int argc, char *argv[]){
+  
+    //threadExecution();
+    forkExecution();
 
     return 0;
 }
