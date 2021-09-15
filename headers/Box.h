@@ -14,6 +14,7 @@ struct Box {
 };
 
 Box* newBox(char type);
+Box* newSharedBox(char type);
 
 #endif
 
