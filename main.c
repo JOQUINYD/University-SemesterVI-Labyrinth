@@ -66,7 +66,7 @@ void threadExecution(MatrixInfo* matrixInfo){
 
    //Thread execution
     printf("\n///////////////////////////////////////////////////////////////////////////\n");
-    printf("Inicia Ejecucion Threads\n");
+    printf("Inicia Ejecucion Threads\n\n");
     sleep(2);
 
     // MUTEX
@@ -116,7 +116,7 @@ void forkExecution(MatrixInfo* matrixInfo){
 
     //Fork Execution 
     printf("\n///////////////////////////////////////////////////////////////////////////\n");
-    printf("Inicia Ejecucion Forks\n");
+    printf("Inicia Ejecucion Forks\n\n");
     sleep(2);
 
     // MUTEX
@@ -173,8 +173,9 @@ void forkExecution(MatrixInfo* matrixInfo){
 
 int main(int argc, char *argv[]){
         
-    char* path = "Tests/lab1.txt";
+    char* path = "Tests/lab2.txt";
     MatrixInfo* matrixInfo = newMatrixInfo(path);
+    matrixInfo->matrix[0][2] = '*';
 
     threadExecution(matrixInfo);
     forkExecution(matrixInfo);
