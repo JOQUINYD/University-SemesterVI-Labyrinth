@@ -9,6 +9,7 @@
 #include <sys/mman.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <time.h>
 
 
 Box** crateMatrix(int rows, int cols, MatrixInfo* matrixInfo){
@@ -60,6 +61,10 @@ Box** crateSharedMatrix(int rows, int cols, MatrixInfo* matrixInfo){
 
 
 void threadExecution(MatrixInfo* matrixInfo){
+    time_t start, end;
+    int timeUsedInThreads;
+
+    start = time(NULL);    
 
     int cols = matrixInfo->columns;
     int rows = matrixInfo->rows;
@@ -108,9 +113,16 @@ void threadExecution(MatrixInfo* matrixInfo){
     
     printf("\nFINALIZA EJECUCIÓN THREADS\n\n\n");
 
+    end = time(NULL);
+    timeUsedInThreads = (end - start);
+
+    printf("Los Threads duraron %d segundos ejecutando \n", timeUsedInThreads);
+
 }
 
 void forkExecution(MatrixInfo* matrixInfo){
+    time_t start;
+    start = time(NULL);
 
     int cols = matrixInfo->columns;
     int rows = matrixInfo->rows;
@@ -164,6 +176,13 @@ void forkExecution(MatrixInfo* matrixInfo){
         waitpid(pid,&status,0);
         *finishedForks = true;
         printf("\nFINALIZA EJECUCIÓN FORKS\n\n");
+
+        time_t end;
+        int timeUsedInForks;
+        
+        end = time(NULL);
+        timeUsedInForks = (end - start);
+        printf("Los Forks duraron %d segundos ejecutando \n", timeUsedInForks);
     }
 
     //Join Printer Thread
