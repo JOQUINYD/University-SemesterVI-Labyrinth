@@ -5,14 +5,12 @@
 #include "sources/PathFinder.c"
 #include "sources/Printer.c"
 #include "sources/PrinterInfo.c"
+#include "sources/MatrixInfo.c"
 #include <sys/mman.h>
 #include <sys/wait.h>
 
 
-int cols = 5;
-int rows = 5;
-
-Box** crateMatrix(int rows, int cols){
+Box** crateMatrix(int rows, int cols, MatrixInfo* matrixInfo){
     Box** matrix = malloc(rows * sizeof *matrix);
     for (int i=0; i<rows; i++)
     {
@@ -23,7 +21,7 @@ Box** crateMatrix(int rows, int cols){
     {
         for (int j = 0; j < cols; j++)
         {
-            matrix[i][j] = *newBox('*');
+            matrix[i][j] = *newBox(matrixInfo->matrix[i][j]);
 
         }
         
@@ -31,21 +29,10 @@ Box** crateMatrix(int rows, int cols){
     matrix[0][0].marked = true;
     matrix[0][0].down = true;
 
-    matrix[0][0].type = ' ';
-    matrix[1][0].type = ' ';
-    matrix[1][1].type = ' ';
-    matrix[2][1].type = ' ';
-    matrix[1][2].type = ' ';
-    matrix[2][3].type = ' ';
-    matrix[1][3].type = ' ';
-    matrix[3][1].type = ' ';
-    matrix[3][2].type = '/';
-    matrix[4][2].type = ' ';   
-    matrix[3][3].type = ' '; 
     return matrix;
 }
 
-Box** crateSharedMatrix(int rows, int cols){
+Box** crateSharedMatrix(int rows, int cols, MatrixInfo* matrixInfo){
     Box** matrix = mmap(NULL, rows * sizeof *matrix, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0); 
 
 
@@ -58,30 +45,24 @@ Box** crateSharedMatrix(int rows, int cols){
     {
         for (int j = 0; j < cols; j++)
         {
-            matrix[i][j] = *newSharedBox('*');
+            matrix[i][j] = *newSharedBox(matrixInfo->matrix[i][j]);
 
         }
         
     }
     matrix[0][0].marked = true;
     matrix[0][0].down = true;
-
-    matrix[0][0].type = ' ';
-    matrix[1][0].type = ' ';
-    matrix[1][1].type = ' ';
-    matrix[2][1].type = ' ';
-    matrix[1][2].type = ' ';
-    matrix[2][3].type = ' ';
-    matrix[1][3].type = ' ';
-    matrix[3][1].type = ' ';
-    matrix[3][2].type = '/';
-    matrix[4][2].type = ' ';   
-    matrix[3][3].type = ' ';
+ 
     return matrix;
 }
 
 
-void threadExecution(){
+
+void threadExecution(MatrixInfo* matrixInfo){
+
+    int cols = matrixInfo->columns;
+    int rows = matrixInfo->rows;
+
    //Thread execution
     printf("///////////////////////////////////////////////////////////////////////////\n");
     printf("Inicia Ejecucion Threads\n");
@@ -92,7 +73,7 @@ void threadExecution(){
     pthread_mutex_init(&mutexThread, NULL);
 
     //Get the Matrix
-    Box** matrixThreads = crateMatrix(rows,cols); 
+    Box** matrixThreads = crateMatrix(rows,cols,matrixInfo); 
 
     //Declare Printer Info
     bool *finishedThreads = malloc(sizeof finishedThreads);
@@ -127,7 +108,11 @@ void threadExecution(){
     pthread_mutex_destroy(&mutexThread);    
 }
 
-void forkExecution(){
+void forkExecution(MatrixInfo* matrixInfo){
+
+    int cols = matrixInfo->columns;
+    int rows = matrixInfo->rows;
+
     //Fork Execution 
     printf("///////////////////////////////////////////////////////////////////////////\n");
     printf("Inicia Ejecucion Forks\n");
@@ -138,7 +123,7 @@ void forkExecution(){
     pthread_mutex_init(mutexFork, NULL);
 
     //Get the Matrix
-    Box** matrixForks = crateSharedMatrix(rows,cols); 
+    Box** matrixForks = crateSharedMatrix(rows,cols,matrixInfo); 
     
     //Declare Printer Info
     bool *finishedForks = mmap(NULL, sizeof finishedForks, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0); 
@@ -182,9 +167,13 @@ void forkExecution(){
 
 
 int main(int argc, char *argv[]){
+        
+    char* path = "/home/joalg/Downloads/lab2.txt";
+    MatrixInfo* matrixInfo = newMatrixInfo(path);
+
   
-    //threadExecution();
-    forkExecution();
+    threadExecution(matrixInfo);
+    forkExecution(matrixInfo);
 
     return 0;
 }
