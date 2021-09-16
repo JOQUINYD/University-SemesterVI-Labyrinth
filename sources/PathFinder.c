@@ -255,71 +255,89 @@ void *executeFork(void* path_i){
 
 
 
-    if (path->direction!='u' && path->direction!='d' && canMoveTo(path,'u'))
+    if (path->direction!='u' && path->direction!='d')
     {
-        
-        int forkId = fork();
-        if (forkId==0)
-        {
-            move(path,'u');
-            executeFork(path);
-            return;
+        if (canMoveTo(path,'u'))
+        {   
+            int forkId = fork();
+            if (forkId==0)
+            {
+                pthread_mutex_lock(mutex);
+                move(path,'u');
+                pthread_mutex_unlock(mutex);
+                executeFork(path);
+                return;
+            }
+            else{
+                forks [0]=forkId;
+            }
         }
-        else{
-            forks [0]=forkId;
-        }
-        
     }
 
-    if (path->direction!='u' && path->direction!='d' && canMoveTo(path,'d'))
+    if (path->direction!='u' && path->direction!='d')
     {
-        int forkId = fork();
-        if (forkId==0)
+        if ( canMoveTo(path,'d'))
         {
-            move(path,'d');
-            executeFork(path);
-            return;
+            int forkId = fork();
+            if (forkId==0)
+            {
+                pthread_mutex_lock(mutex);
+                move(path,'d');
+                pthread_mutex_unlock(mutex);
+                executeFork(path);
+                return;
+            }
+            else{
+                forks [1]=forkId;
+            }
         }
-        else{
-            forks [1]=forkId;
-        }
-        
-    }
 
-
-    if (path->direction!='r' && path->direction!='l' && canMoveTo(path,'l'))
-    {
-        int forkId = fork();
-        if (forkId==0)
-        {
-            move(path,'l');
-            executeFork(path);
-            return;
-        }
-        else{
-            forks [2]=forkId;
-        }
-                
     }
 
 
-    if (path->direction!='r' && path->direction!='l' && canMoveTo(path,'r'))
+    if (path->direction!='r' && path->direction!='l')
     {
-        int forkId = fork();
-        if (forkId==0)
+        if (canMoveTo(path,'l'))
         {
-            move(path,'r');
-            executeFork(path);
-            return;
+            int forkId = fork();
+            if (forkId==0)
+            {
+                pthread_mutex_lock(mutex);
+                move(path,'l');
+                pthread_mutex_unlock(mutex);
+                executeFork(path);
+                return;
+            }
+            else{
+                forks [2]=forkId;
+            }
+        }   
+    }
+
+
+    if (path->direction!='r' && path->direction!='l' )
+    {
+        if (canMoveTo(path,'r'))
+        {
+            int forkId = fork();
+            if (forkId==0)
+            {
+                pthread_mutex_lock(mutex);
+                move(path,'r');
+                pthread_mutex_unlock(mutex);
+                executeFork(path);
+                return;
+            }
+            else{
+                forks [3]=forkId;
+            }     
         }
-        else{
-            forks [3]=forkId;
-        }      
     }
     
-
     if(canMoveTo(path,path->direction)){
+        pthread_mutex_lock(mutex);
         move(path,path->direction);
+        pthread_mutex_unlock(mutex);
         executeFork(path);
     }
 
