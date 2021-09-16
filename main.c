@@ -7,6 +7,8 @@
 #include "sources/PrinterInfo.c"
 #include "sources/MatrixInfo.c"
 #include <sys/mman.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 
 Box** crateMatrix(int rows, int cols, MatrixInfo* matrixInfo){
@@ -55,21 +57,18 @@ Box** crateSharedMatrix(int rows, int cols, MatrixInfo* matrixInfo){
     return matrix;
 }
 
-int main(int argc, char *argv[]){
 
-    char* path = "/home/mela227/Downloads/lab1.txt";
-    MatrixInfo* matrixInfo = newMatrixInfo(path);
-    
-  
+
+void threadExecution(MatrixInfo* matrixInfo){
+
     int cols = matrixInfo->columns;
     int rows = matrixInfo->rows;
 
+   //Thread execution
+    printf("\n///////////////////////////////////////////////////////////////////////////\n");
+    printf("\nINICIA EJECUCIÓN THREADS\n");
+    printf("\n///////////////////////////////////////////////////////////////////////////\n\n");
 
-    ///////////////////////////////////////////////////////////////////////////
-
-    //Thread execution
-    printf("///////////////////////////////////////////////////////////////////////////\n");
-    printf("Inicia Ejecucion Threads\n");
     sleep(1);
 
     // MUTEX
@@ -92,7 +91,7 @@ int main(int argc, char *argv[]){
     setVariables(matrixThreads,rows,cols, &mutexThread); 
     
     //Create first Path
-    Path* startPathThread = newPath(0,0,'d',0);
+    Path* startPathThread = newPath();
     
     //Create first thread
     pthread_t t1;
@@ -107,20 +106,29 @@ int main(int argc, char *argv[]){
     //Join Printer Thread
     pthread_join(printerThreads, NULL);
     
-    printf("TERMINA THREAD\n");
+    printf("\nFINALIZA EJECUCIÓN THREADS\n\n\n");
 
-    pthread_mutex_destroy(&mutexThread);    
+}
 
-    ///////////////////////////////////////////////////////////////////////////
+void forkExecution(MatrixInfo* matrixInfo){
+
+    int cols = matrixInfo->columns;
+    int rows = matrixInfo->rows;
 
     //Fork Execution 
-    printf("///////////////////////////////////////////////////////////////////////////\n");
-    printf("Inicia Ejecucion Forks\n");
+    printf("\n///////////////////////////////////////////////////////////////////////////\n");
+    printf("\nINICIA EJECUCIÓN FORKS\n");
+    printf("\n///////////////////////////////////////////////////////////////////////////\n\n");
+
     sleep(1);
 
     // MUTEX
     pthread_mutex_t *mutexFork = mmap(NULL, sizeof mutexFork, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0); 
-    pthread_mutex_init(mutexFork, NULL);
+    pthread_mutexattr_t *att = mmap(NULL, sizeof att, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+    pthread_mutexattr_init(att);
+    pthread_mutexattr_setrobust(att,1);
+    pthread_mutexattr_setpshared(att, PTHREAD_PROCESS_SHARED);
+    pthread_mutex_init(mutexFork, att);
 
     //Get the Matrix
     Box** matrixForks = crateSharedMatrix(rows,cols,matrixInfo); 
@@ -136,21 +144,44 @@ int main(int argc, char *argv[]){
     setVariables(matrixForks,rows,cols, mutexFork); 
     
     //Create first Path
-    Path* startPathFork = newPath(0,0,'d',0);
+    Path* startPathFork = newPath();
+ 
 
-    //Fork the execution and Printer
-    if (fork()==0)
+
+    //Create PrinterThread
+    pthread_t printerForks;
+    pthread_create(&printerForks, NULL, &printMatrix, printerInfoForks);
+
+    pid_t pid = fork();
+    
+    int status;
+    if (pid==0)  
     {
         executeFork(startPathFork);
-        wait();
-        *finishedForks = true;
-
+        
     }
     else{
-        printMatrix(printerInfoForks);
+        waitpid(pid,&status,0);
+        *finishedForks = true;
+        printf("\nFINALIZA EJECUCIÓN FORKS\n\n");
     }
 
+    //Join Printer Thread
+    pthread_join(printerForks,NULL);
+  
 
+
+}
+
+
+
+int main(int argc, char *argv[]){
+        
+    char* path = "Tests/lab2.txt";
+    MatrixInfo* matrixInfo = newMatrixInfo(path);
+
+    threadExecution(matrixInfo);
+    forkExecution(matrixInfo);
 
     return 0;
 }

@@ -1,5 +1,6 @@
 #include "../headers/Path.h"
 #include <pthread.h>
+#include <sys/wait.h>
 
 Box** matrix;
 int rows;
@@ -23,7 +24,7 @@ bool canMoveTo(Path* path, char direction){
             if((path->i-1)>=0){
                 Box* box = &(matrix[path->i-1][path->j]);
 
-                if (box->type==' ' && !(box->up))
+                if (box->type!='*' && !(box->up))
                 {
                     return true;
                 }
@@ -34,7 +35,7 @@ bool canMoveTo(Path* path, char direction){
             if((path->i+1)<rows){
                 Box* box = &(matrix[path->i+1][path->j]);
 
-                if (box->type==' ' && !(box->down))
+                if (box->type!='*' && !(box->down))
                 {
                     return true;
                 }
@@ -45,7 +46,7 @@ bool canMoveTo(Path* path, char direction){
             if((path->j-1)>=0){
                 Box* box = &(matrix[path->i][path->j-1]);
 
-                if (box->type==' ' && !(box->left))
+                if (box->type!='*' && !(box->left))
                 {
                     return true;
                 }
@@ -56,7 +57,7 @@ bool canMoveTo(Path* path, char direction){
             if((path->j+1)<cols){
                 Box* box = &(matrix[path->i][path->j+1]);
 
-                if (box->type==' ' && !(box->right))
+                if (box->type!='*' && !(box->right))
                 {
                     return true;
                 }
@@ -116,18 +117,30 @@ void move(Path* path, char direction){
 
 }
 
+bool win(Path* path){
+    return matrix[path->i][path->j].type == '/';
+}
 
 void *executeThread(void* path_i){
-    //lo llamo con path* en lugar de coid* en los subthreads
-
+    
     Path* path = (Path*)path_i;
-    usleep(500000);
+    
+    bool won = win(path);
+
+    if (won)
+    {
+        path->win = true;
+        path->printFinish(path);
+        return;
+    }
+    
+    usleep(300000);
+
 
     pthread_t threads[4] = {0,0,0,0};
 
 
-
-    if (path->direction!='u' && path->direction!='d')
+    if (!won && path->direction!='u' && path->direction!='d')
     {
         pthread_mutex_lock(mutex);
         if (canMoveTo(path,'u'))
@@ -145,7 +158,7 @@ void *executeThread(void* path_i){
         }
         
     }
-    if (path->direction!='d' && path->direction!='u')
+    if (!won && path->direction!='d' && path->direction!='u')
     {
         pthread_mutex_lock(mutex);
         if (canMoveTo(path,'d'))
@@ -163,7 +176,7 @@ void *executeThread(void* path_i){
         }
         
     }
-    if (path->direction!='r' && path->direction!='l')
+    if (!won && path->direction!='r' && path->direction!='l')
     {
         pthread_mutex_lock(mutex);
         if (canMoveTo(path,'r'))
@@ -180,7 +193,7 @@ void *executeThread(void* path_i){
             pthread_mutex_unlock(mutex);
         }
     }
-    if (path->direction!='l' && path->direction!='r')
+    if (!won && path->direction!='l' && path->direction!='r')
     {
         pthread_mutex_lock(mutex);
         if (canMoveTo(path,'l'))
@@ -200,13 +213,14 @@ void *executeThread(void* path_i){
 
 
     pthread_mutex_lock(mutex);
-    if(canMoveTo(path,path->direction)){
+    if(!won && canMoveTo(path,path->direction)){
         move(path,path->direction);
         pthread_mutex_unlock(mutex);
         executeThread(path);
     }
     else
     {
+        path->printFinish(path);
         pthread_mutex_unlock(mutex);
     }
     
@@ -219,119 +233,129 @@ void *executeThread(void* path_i){
         
     }
 
+
+
 }
 
-void executeFork(void* path_i){
+void *executeFork(void* path_i){
+    
 
     Path* path = (Path*)path_i;
-    usleep(500000);
 
-    int father = 1;
-    int childIds[4] = {0,0,0,0};
-
+    int forks[] = {0,0,0,0};
     
-    if (father!=0 && path->direction!='u' && path->direction!='d')
+    bool won = win(path);
+
+    if (won)
     {
-        pthread_mutex_lock(mutex);
+        path->win = true;
+        path->printFinish(path);
+        return;
+    }
+    
+    usleep(300000);
+
+
+
+    if (path->direction!='u' && path->direction!='d')
+    {
         if (canMoveTo(path,'u'))
-        {
-            father = fork();
-            if (father==0)
+        {   
+            int forkId = fork();
+            if (forkId==0)
             {
-                path->direction = 'u';
+                pthread_mutex_lock(mutex);
+                move(path,'u');
+                pthread_mutex_unlock(mutex);
+                executeFork(path);
+                return;
             }
             else{
-                childIds[0] = father;
-                pthread_mutex_unlock(mutex);
-            }            
+                forks [0]=forkId;
+            }
         }
-        else
-        {
-            pthread_mutex_unlock(mutex);
-        }
-        
     }
-    if (father!=0 && path->direction!='d' && path->direction!='u')
+
+    if (path->direction!='u' && path->direction!='d')
     {
-        pthread_mutex_lock(mutex);
-        if (canMoveTo(path,'d'))
+        if ( canMoveTo(path,'d'))
         {
-            father = fork();
-            if (father==0)
+            int forkId = fork();
+            if (forkId==0)
             {
-                path->direction = 'd';
+                pthread_mutex_lock(mutex);
+                move(path,'d');
+                pthread_mutex_unlock(mutex);
+                executeFork(path);
+                return;
             }
             else{
-                childIds[1] = father;
-                pthread_mutex_unlock(mutex);
+                forks [1]=forkId;
             }
         }
-        else
-        {
-            pthread_mutex_unlock(mutex);
-        }   
+
     }
-    if (father!=0 && path->direction!='r' && path->direction!='l')
+
+
+    if (path->direction!='r' && path->direction!='l')
     {
-        pthread_mutex_lock(mutex);
-        if (canMoveTo(path,'r'))
-        {
-            father = fork();
-            if (father==0)
-            {
-                path->direction = 'r';
-            }
-            else{
-                childIds[2] = father;
-                pthread_mutex_unlock(mutex);
-            }
-        }
-        else
-        {
-            pthread_mutex_unlock(mutex);
-        }        
-    }
-    if (father!=0 && path->direction!='l' && path->direction!='r')
-    {
-        pthread_mutex_lock(mutex);
         if (canMoveTo(path,'l'))
         {
-            father = fork();
-            if (father==0)
+            int forkId = fork();
+            if (forkId==0)
             {
-                path->direction = 'l';
-            }   
-            else{
-                childIds[3] = father;
+                pthread_mutex_lock(mutex);
+                move(path,'l');
                 pthread_mutex_unlock(mutex);
+                executeFork(path);
+                return;
             }
-        }
-        else
-        {
-            pthread_mutex_unlock(mutex);
-        }  
+            else{
+                forks [2]=forkId;
+            }
+        }   
     }
 
-    pthread_mutex_lock(mutex);
+
+    if (path->direction!='r' && path->direction!='l' )
+    {
+        if (canMoveTo(path,'r'))
+        {
+            int forkId = fork();
+            if (forkId==0)
+            {
+                pthread_mutex_lock(mutex);
+                move(path,'r');
+                pthread_mutex_unlock(mutex);
+                executeFork(path);
+                return;
+            }
+            else{
+                forks [3]=forkId;
+            }     
+        }
+    }
+    
     if(canMoveTo(path,path->direction)){
+        pthread_mutex_lock(mutex);
         move(path,path->direction);
         pthread_mutex_unlock(mutex);
         executeFork(path);
     }
-    else
-    {
-        pthread_mutex_unlock(mutex);
-    }       
+    else{
+        path->printFinish(path);
+    }
 
     for (int i = 0; i < 4; i++)
-    {
-        if (childIds[i]!=0)
+    {   int status = 0;
+        if (forks[i]!=0)
         {
-            waitpid(childIds[i]);
-        }   
-    }    
+            waitpid(forks[i],&status,0);
+
+        }
+        
+    }
+
+
 }
-
-
-
 
