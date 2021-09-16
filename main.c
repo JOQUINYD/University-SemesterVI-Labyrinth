@@ -8,6 +8,7 @@
 #include "sources/MatrixInfo.c"
 #include <sys/mman.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 
 Box** crateMatrix(int rows, int cols, MatrixInfo* matrixInfo){
@@ -64,9 +65,9 @@ void threadExecution(MatrixInfo* matrixInfo){
     int rows = matrixInfo->rows;
 
    //Thread execution
-    printf("///////////////////////////////////////////////////////////////////////////\n");
+    printf("\n///////////////////////////////////////////////////////////////////////////\n");
     printf("Inicia Ejecucion Threads\n");
-    sleep(1);
+    sleep(2);
 
     // MUTEX
     pthread_mutex_t mutexThread;
@@ -88,7 +89,7 @@ void threadExecution(MatrixInfo* matrixInfo){
     setVariables(matrixThreads,rows,cols, &mutexThread); 
     
     //Create first Path
-    Path* startPathThread = newPath(0,0,'d',0);
+    Path* startPathThread = newPath();
     
     //Create first thread
     pthread_t t1;
@@ -114,9 +115,9 @@ void forkExecution(MatrixInfo* matrixInfo){
     int rows = matrixInfo->rows;
 
     //Fork Execution 
-    printf("///////////////////////////////////////////////////////////////////////////\n");
+    printf("\n///////////////////////////////////////////////////////////////////////////\n");
     printf("Inicia Ejecucion Forks\n");
-    sleep(1);
+    sleep(2);
 
     // MUTEX
     pthread_mutex_t *mutexFork = mmap(NULL, sizeof mutexFork, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0); 
@@ -140,7 +141,7 @@ void forkExecution(MatrixInfo* matrixInfo){
     setVariables(matrixForks,rows,cols, mutexFork); 
     
     //Create first Path
-    Path* startPathFork = newPath(0,0,'d',0);
+    Path* startPathFork = newPath();
  
 
 
@@ -172,11 +173,10 @@ void forkExecution(MatrixInfo* matrixInfo){
 
 int main(int argc, char *argv[]){
         
-    char* path = "Tests/lab2.txt";
+    char* path = "Tests/lab1.txt";
     MatrixInfo* matrixInfo = newMatrixInfo(path);
 
-  
-    //threadExecution(matrixInfo);
+    threadExecution(matrixInfo);
     forkExecution(matrixInfo);
 
     return 0;

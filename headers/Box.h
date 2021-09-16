@@ -1,6 +1,7 @@
 #ifndef BOX_H
 #define BOX_H
 #include <stdbool.h>
+#include <stdlib.h>
 
 typedef struct Box Box;
 

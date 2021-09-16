@@ -129,12 +129,12 @@ void *executeThread(void* path_i){
 
     if (won)
     {
-        path->done = true;
-        printf("Ganéééé\n");
+        path->win = true;
+        path->printFinish(path);
         return;
     }
     
-    usleep(500000);
+    usleep(300000);
 
 
     pthread_t threads[4] = {0,0,0,0};
@@ -220,6 +220,7 @@ void *executeThread(void* path_i){
     }
     else
     {
+        path->printFinish(path);
         pthread_mutex_unlock(mutex);
     }
     
@@ -247,11 +248,12 @@ void *executeFork(void* path_i){
 
     if (won)
     {
-        path->done = true;
+        path->win = true;
+        path->printFinish(path);
         return;
     }
     
-    usleep(500000);
+    usleep(300000);
 
 
 
@@ -339,6 +341,9 @@ void *executeFork(void* path_i){
         move(path,path->direction);
         pthread_mutex_unlock(mutex);
         executeFork(path);
+    }
+    else{
+        path->printFinish(path);
     }
 
     for (int i = 0; i < 4; i++)
