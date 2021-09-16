@@ -179,7 +179,6 @@ int main(int argc, char *argv[]){
         
     char* path = "Tests/lab2.txt";
     MatrixInfo* matrixInfo = newMatrixInfo(path);
-    matrixInfo->matrix[0][2] = '*';
 
     threadExecution(matrixInfo);
     forkExecution(matrixInfo);
