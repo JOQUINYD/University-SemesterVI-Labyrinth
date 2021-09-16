@@ -66,8 +66,10 @@ void threadExecution(MatrixInfo* matrixInfo){
 
    //Thread execution
     printf("\n///////////////////////////////////////////////////////////////////////////\n");
-    printf("Inicia Ejecucion Threads\n");
-    sleep(2);
+    printf("\nINICIA EJECUCIÓN THREADS\n");
+    printf("\n///////////////////////////////////////////////////////////////////////////\n\n");
+
+    sleep(1);
 
     // MUTEX
     pthread_mutex_t mutexThread;
@@ -104,9 +106,8 @@ void threadExecution(MatrixInfo* matrixInfo){
     //Join Printer Thread
     pthread_join(printerThreads, NULL);
     
-    printf("TERMINA THREAD\n");
+    printf("\nFINALIZA EJECUCIÓN THREADS\n\n\n");
 
-    pthread_mutex_destroy(&mutexThread);    
 }
 
 void forkExecution(MatrixInfo* matrixInfo){
@@ -116,12 +117,18 @@ void forkExecution(MatrixInfo* matrixInfo){
 
     //Fork Execution 
     printf("\n///////////////////////////////////////////////////////////////////////////\n");
-    printf("Inicia Ejecucion Forks\n");
-    sleep(2);
+    printf("\nINICIA EJECUCIÓN FORKS\n");
+    printf("\n///////////////////////////////////////////////////////////////////////////\n\n");
+
+    sleep(1);
 
     // MUTEX
     pthread_mutex_t *mutexFork = mmap(NULL, sizeof mutexFork, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0); 
-    pthread_mutex_init(mutexFork, NULL);
+    pthread_mutexattr_t *att = mmap(NULL, sizeof att, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+    pthread_mutexattr_init(att);
+    pthread_mutexattr_setrobust(att,1);
+    pthread_mutexattr_setpshared(att, PTHREAD_PROCESS_SHARED);
+    pthread_mutex_init(mutexFork, att);
 
     //Get the Matrix
     Box** matrixForks = crateSharedMatrix(rows,cols,matrixInfo); 
@@ -156,11 +163,12 @@ void forkExecution(MatrixInfo* matrixInfo){
     else{
         waitpid(pid,&status,0);
         *finishedForks = true;
+        printf("\nFINALIZA EJECUCIÓN FORKS\n\n");
     }
 
     //Join Printer Thread
     pthread_join(printerForks,NULL);
-
+  
 
 
 }
@@ -169,7 +177,7 @@ void forkExecution(MatrixInfo* matrixInfo){
 
 int main(int argc, char *argv[]){
         
-    char* path = "Tests/lab1.txt";
+    char* path = "Tests/lab2.txt";
     MatrixInfo* matrixInfo = newMatrixInfo(path);
 
     threadExecution(matrixInfo);
