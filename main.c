@@ -7,6 +7,7 @@
 #include "sources/PrinterInfo.c"
 #include "sources/MatrixInfo.c"
 #include <sys/mman.h>
+#include <sys/wait.h>
 
 
 Box** crateMatrix(int rows, int cols, MatrixInfo* matrixInfo){
@@ -55,19 +56,14 @@ Box** crateSharedMatrix(int rows, int cols, MatrixInfo* matrixInfo){
     return matrix;
 }
 
-int main(int argc, char *argv[]){
 
-    char* path = "/home/mela227/Downloads/lab1.txt";
-    MatrixInfo* matrixInfo = newMatrixInfo(path);
-    
-  
+
+void threadExecution(MatrixInfo* matrixInfo){
+
     int cols = matrixInfo->columns;
     int rows = matrixInfo->rows;
 
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    //Thread execution
+   //Thread execution
     printf("///////////////////////////////////////////////////////////////////////////\n");
     printf("Inicia Ejecucion Threads\n");
     sleep(1);
@@ -110,8 +106,12 @@ int main(int argc, char *argv[]){
     printf("TERMINA THREAD\n");
 
     pthread_mutex_destroy(&mutexThread);    
+}
 
-    ///////////////////////////////////////////////////////////////////////////
+void forkExecution(MatrixInfo* matrixInfo){
+
+    int cols = matrixInfo->columns;
+    int rows = matrixInfo->rows;
 
     //Fork Execution 
     printf("///////////////////////////////////////////////////////////////////////////\n");
@@ -137,20 +137,43 @@ int main(int argc, char *argv[]){
     
     //Create first Path
     Path* startPathFork = newPath(0,0,'d',0);
+ 
 
-    //Fork the execution and Printer
-    if (fork()==0)
+
+    //Create PrinterThread
+    pthread_t printerForks;
+    pthread_create(&printerForks, NULL, &printMatrix, printerInfoForks);
+
+    pid_t pid = fork();
+    
+    int status;
+    if (pid==0)  
     {
         executeFork(startPathFork);
-        wait();
-        *finishedForks = true;
-
+        
     }
     else{
-        printMatrix(printerInfoForks);
+        waitpid(pid,&status,0);
+        *finishedForks = true;
     }
 
+    //Join Printer Thread
+    pthread_join(printerForks,NULL);
 
+
+
+}
+
+
+
+int main(int argc, char *argv[]){
+        
+    char* path = "/home/joalg/Downloads/lab2.txt";
+    MatrixInfo* matrixInfo = newMatrixInfo(path);
+
+  
+    threadExecution(matrixInfo);
+    forkExecution(matrixInfo);
 
     return 0;
 }
