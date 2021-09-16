@@ -120,7 +120,11 @@ void forkExecution(MatrixInfo* matrixInfo){
 
     // MUTEX
     pthread_mutex_t *mutexFork = mmap(NULL, sizeof mutexFork, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0); 
-    pthread_mutex_init(mutexFork, NULL);
+    pthread_mutexattr_t *att = mmap(NULL, sizeof att, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+    pthread_mutexattr_init(att);
+    pthread_mutexattr_setrobust(att,1);
+    pthread_mutexattr_setpshared(att, PTHREAD_PROCESS_SHARED);
+    pthread_mutex_init(mutexFork, att);
 
     //Get the Matrix
     Box** matrixForks = crateSharedMatrix(rows,cols,matrixInfo); 
@@ -168,11 +172,11 @@ void forkExecution(MatrixInfo* matrixInfo){
 
 int main(int argc, char *argv[]){
         
-    char* path = "/home/joalg/Downloads/lab2.txt";
+    char* path = "Tests/lab2.txt";
     MatrixInfo* matrixInfo = newMatrixInfo(path);
 
   
-    threadExecution(matrixInfo);
+    //threadExecution(matrixInfo);
     forkExecution(matrixInfo);
 
     return 0;
