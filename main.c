@@ -9,6 +9,7 @@
 #include <sys/mman.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <time.h>
 
 
 Box** crateMatrix(int rows, int cols, MatrixInfo* matrixInfo){
@@ -60,6 +61,8 @@ Box** crateSharedMatrix(int rows, int cols, MatrixInfo* matrixInfo){
 
 
 void threadExecution(MatrixInfo* matrixInfo){
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
 
     int cols = matrixInfo->columns;
     int rows = matrixInfo->rows;
@@ -108,9 +111,19 @@ void threadExecution(MatrixInfo* matrixInfo){
     
     printf("\nFINALIZA EJECUCIÓN THREADS\n\n\n");
 
+    gettimeofday(&end, NULL);
+ 
+    long seconds = (end.tv_sec - start.tv_sec);
+    long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
+    double timeUsedInThreads = (double)micros/1000000;
+ 
+    printf("Los Threads duraron %f segundos ejecutando \n", timeUsedInThreads);
+
 }
 
 void forkExecution(MatrixInfo* matrixInfo){
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
 
     int cols = matrixInfo->columns;
     int rows = matrixInfo->rows;
@@ -164,6 +177,14 @@ void forkExecution(MatrixInfo* matrixInfo){
         waitpid(pid,&status,0);
         *finishedForks = true;
         printf("\nFINALIZA EJECUCIÓN FORKS\n\n");
+
+        gettimeofday(&end, NULL);
+ 
+        long seconds = (end.tv_sec - start.tv_sec);
+        long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
+        double timeUsedInForks = (double)micros/1000000;
+    
+        printf("Los Forks duraron %f segundos ejecutando \n", timeUsedInForks);
     }
 
     //Join Printer Thread
@@ -179,6 +200,7 @@ int main(int argc, char *argv[]){
         
     char* path = "Tests/lab2.txt";
     MatrixInfo* matrixInfo = newMatrixInfo(path);
+
 
     threadExecution(matrixInfo);
     forkExecution(matrixInfo);
