@@ -2,6 +2,7 @@
 #define PRINTER_INFO_H
 #include <stdbool.h>
 #include "Box.h"
+#include <stdlib.h>
 
 typedef struct PrinterInfo PrinterInfo;
 
