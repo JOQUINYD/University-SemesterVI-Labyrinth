@@ -2,6 +2,8 @@
 #define PATH_H
 #include <stdbool.h>
 #include "Box.h"
+#include <pthread.h>
+#include <stdlib.h>
 
 typedef struct Path Path;
 
@@ -10,9 +12,12 @@ struct Path {
     int j;
     char direction;
     int amount;
-    bool done;
+    bool win;
+
+    void (*printFinish)(Path* self);
+
 };
 
-Path* newPath(int i, int j, char direction, int amount);
+Path* newPath();
 
 #endif

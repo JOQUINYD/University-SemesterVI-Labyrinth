@@ -2,16 +2,31 @@
 #include "../headers/Path.h"
 
 
-Path* newPath(int i, int j, char direction, int amount){
+
+void printFinish(Path* self){
+    if (self->win)
+    {
+        printf("Finalizó exitosamente con %d especios recorridos.\n\n",self->amount);
+    }
+    else{
+        printf("Finalizó sin éxito con %d especios recorridos.\n\n",self->amount);
+    }
+}
+
+
+
+Path* newPath(){
     //new
     Path* self = (Path*)malloc(sizeof(Path));
     
     //atributes
-    self->i = i;
-    self->j = j;
-    self->direction = direction;
-    self->amount = amount;
-    self->done = false;
+    self->i = 0;
+    self->j = 0;
+    self->direction = 'd';
+    self->amount = 1;
+    self->win = false;
+
+    self->printFinish = printFinish;
     
     return self;
 }
@@ -26,8 +41,10 @@ Path* clonePath(Path* old){
     self->j = old->j;
     self->direction = old->direction;
     self->amount = old->amount;
-    self->done = false;
+    self->win = false;
     
+    self->printFinish = printFinish;
+
     return self;
 }
 
