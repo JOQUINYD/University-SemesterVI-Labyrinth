@@ -109,7 +109,7 @@ void threadExecution(MatrixInfo* matrixInfo){
     //Join Printer Thread
     pthread_join(printerThreads, NULL);
     
-    printf("\nFINALIZA EJECUCIÓN THREADS\n\n\n");
+    printf("\nFINALIZA EJECUCIÓN THREADS\n\n");
 
     gettimeofday(&end, NULL);
  
@@ -117,7 +117,7 @@ void threadExecution(MatrixInfo* matrixInfo){
     long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
     double timeUsedInThreads = (double)micros/1000000;
  
-    printf("Los Threads duraron %f segundos ejecutando \n", timeUsedInThreads);
+    printf("Los Threads duraron %f segundos ejecutando \n\n", timeUsedInThreads);
 
 }
 
@@ -184,7 +184,7 @@ void forkExecution(MatrixInfo* matrixInfo){
         long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
         double timeUsedInForks = (double)micros/1000000;
     
-        printf("Los Forks duraron %f segundos ejecutando \n", timeUsedInForks);
+        printf("Los Forks duraron %f segundos ejecutando \n\n", timeUsedInForks);
     }
 
     //Join Printer Thread
@@ -202,6 +202,7 @@ int main(int argc, char *argv[]){
 
     printf( "Ingrese el path del laberinto: ");
     gets( input);
+    printf("\n");
 
     char* path = &input;
     MatrixInfo* matrixInfo = newMatrixInfo(path);
