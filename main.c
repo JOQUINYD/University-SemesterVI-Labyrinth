@@ -198,7 +198,12 @@ void forkExecution(MatrixInfo* matrixInfo){
 
 int main(int argc, char *argv[]){
         
-    char* path = "Tests/lab2.txt";
+    char input[100];
+
+    printf( "Ingrese el path del laberinto: ");
+    gets( input);
+
+    char* path = &input;
     MatrixInfo* matrixInfo = newMatrixInfo(path);
 
 
