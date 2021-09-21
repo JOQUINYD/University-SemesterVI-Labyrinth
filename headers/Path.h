@@ -13,11 +13,12 @@ struct Path {
     char direction;
     int amount;
     bool win;
+    char type;
 
     void (*printFinish)(Path* self);
 
 };
 
-Path* newPath();
+Path* newPath(char type);
 
 #endif

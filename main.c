@@ -96,7 +96,7 @@ void threadExecution(MatrixInfo* matrixInfo){
     setVariables(matrixThreads,rows,cols, &mutexThread); 
     
     //Create first Path
-    Path* startPathThread = newPath();
+    Path* startPathThread = newPath('t');
     
     //Create first thread
     pthread_t t1;
@@ -159,7 +159,7 @@ void forkExecution(MatrixInfo* matrixInfo){
     setVariables(matrixForks,rows,cols, mutexFork); 
     
     //Create first Path
-    Path* startPathFork = newPath();
+    Path* startPathFork = newPath('f');
  
 
 

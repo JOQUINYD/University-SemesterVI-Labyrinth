@@ -4,18 +4,26 @@
 
 
 void printFinish(Path* self){
-    if (self->win)
+    if (self->type == 't')
     {
-        printf("Finalizó exitosamente con %d especios recorridos.\n\n",self->amount);
+        printf("Thread %d ",pthread_self());
     }
     else{
-        printf("Finalizó sin éxito con %d especios recorridos.\n\n",self->amount);
+        printf("Fork %d ",getpid());
+    }
+    
+    if (self->win)
+    {
+        printf("finalizó exitosamente con %d especios recorridos.\n\n",self->amount);
+    }
+    else{
+        printf("finalizó sin éxito con %d especios recorridos.\n\n",self->amount);
     }
 }
 
 
 
-Path* newPath(){
+Path* newPath(char type){
     //new
     Path* self = (Path*)malloc(sizeof(Path));
     
@@ -25,6 +33,7 @@ Path* newPath(){
     self->direction = 'd';
     self->amount = 1;
     self->win = false;
+    self->type =  type;
 
     self->printFinish = printFinish;
     
@@ -42,6 +51,7 @@ Path* clonePath(Path* old){
     self->direction = old->direction;
     self->amount = old->amount;
     self->win = false;
+    self->type = old->type;
     
     self->printFinish = printFinish;
 
