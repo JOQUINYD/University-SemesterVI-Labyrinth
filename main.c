@@ -30,6 +30,7 @@ Box** crateMatrix(int rows, int cols, MatrixInfo* matrixInfo){
     }
     matrix[0][0].marked = true;
     matrix[0][0].down = true;
+    matrix[0][0].first = 'd';  
 
     return matrix;
 }
@@ -54,6 +55,7 @@ Box** crateSharedMatrix(int rows, int cols, MatrixInfo* matrixInfo){
     }
     matrix[0][0].marked = true;
     matrix[0][0].down = true;
+    matrix[0][0].first = 'd';  
  
     return matrix;
 }

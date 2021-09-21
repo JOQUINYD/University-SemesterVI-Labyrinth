@@ -12,7 +12,7 @@ Box* newBox(char type){
     self->down = false;
     self->right = false;
     self->down = false; 
-
+    self->first = ' ';
     self->type = type;
     self->marked = false;
     
@@ -29,7 +29,7 @@ Box* newSharedBox(char type){
     self->down = false;
     self->right = false;
     self->down = false; 
-
+    self->first = ' ';
     self->type = type;
     self->marked = false;
     

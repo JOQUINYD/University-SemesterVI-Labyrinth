@@ -49,7 +49,24 @@ void* printMatrix(void* printInfo_i){
                 case ' ':
                     if(matrix[row][col].marked == true){
                         fontRed();
-                        printf("█");
+                        switch (matrix[row][col].first)
+                        {
+                        case 'u':
+                            printf("⇧");
+                            break;
+                        case 'd':
+                            printf("⇩");
+                            break;
+                        case 'r':
+                            printf("⇨");
+                            break;
+                        case 'l':
+                            printf("⇦");
+                            break;
+                        default:
+                            printf("▓");
+                            break;
+                        }
                     }
                     else{
                         fontWhite();
