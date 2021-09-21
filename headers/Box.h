@@ -12,6 +12,7 @@ struct Box {
     bool left;
     char type;
     bool marked;
+    char first;
 };
 
 Box* newBox(char type);

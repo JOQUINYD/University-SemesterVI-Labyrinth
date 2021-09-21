@@ -81,8 +81,11 @@ void move(Path* path, char direction){
             path->direction = 'u';
             path->amount++;
             path->i--;
-
-            matrix[path->i][path->j].marked = true;
+           
+            if(!matrix[path->i][path->j].marked){
+                matrix[path->i][path->j].marked = true;
+                matrix[path->i][path->j].first = 'u';
+            }
             matrix[path->i][path->j].up = true;
 
             break;
@@ -91,7 +94,10 @@ void move(Path* path, char direction){
             path->amount++;
             path->i++;
 
-            matrix[path->i][path->j].marked = true;
+            if(!matrix[path->i][path->j].marked){
+                matrix[path->i][path->j].marked = true;
+                matrix[path->i][path->j].first = 'd';
+            }
             matrix[path->i][path->j].down = true;
 
             break;
@@ -100,7 +106,10 @@ void move(Path* path, char direction){
             path->amount++;
             path->j--;
 
-            matrix[path->i][path->j].marked = true;
+            if(!matrix[path->i][path->j].marked){
+                matrix[path->i][path->j].marked = true;
+                matrix[path->i][path->j].first = 'l';
+            }
             matrix[path->i][path->j].left= true;
 
             break;
@@ -109,7 +118,10 @@ void move(Path* path, char direction){
             path->amount++;
             path->j++;
 
-            matrix[path->i][path->j].marked = true;
+            if(!matrix[path->i][path->j].marked){
+                matrix[path->i][path->j].marked = true;
+                matrix[path->i][path->j].first = 'r';
+            }
             matrix[path->i][path->j].right = true;
 
             break;

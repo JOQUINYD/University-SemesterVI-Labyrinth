@@ -30,6 +30,7 @@ Box** crateMatrix(int rows, int cols, MatrixInfo* matrixInfo){
     }
     matrix[0][0].marked = true;
     matrix[0][0].down = true;
+    matrix[0][0].first = 'd';  
 
     return matrix;
 }
@@ -54,6 +55,7 @@ Box** crateSharedMatrix(int rows, int cols, MatrixInfo* matrixInfo){
     }
     matrix[0][0].marked = true;
     matrix[0][0].down = true;
+    matrix[0][0].first = 'd';  
  
     return matrix;
 }
@@ -94,7 +96,7 @@ void threadExecution(MatrixInfo* matrixInfo){
     setVariables(matrixThreads,rows,cols, &mutexThread); 
     
     //Create first Path
-    Path* startPathThread = newPath();
+    Path* startPathThread = newPath('t');
     
     //Create first thread
     pthread_t t1;
@@ -157,7 +159,7 @@ void forkExecution(MatrixInfo* matrixInfo){
     setVariables(matrixForks,rows,cols, mutexFork); 
     
     //Create first Path
-    Path* startPathFork = newPath();
+    Path* startPathFork = newPath('f');
  
 
 
